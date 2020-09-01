@@ -1,0 +1,143 @@
+<html>   
+<canvas id ="game canvas" width="800"
+height = "600"></canvas>
+
+<script>
+   var canvas;  
+   var canvascontext;
+   var ballx=50;
+   var bally=50;
+   var ballspeedy=17;
+   var ballspeedx=17;
+   var player1score=0;
+   var player2score=0;
+   var paddle1y =250;
+   var paddle2y =250;
+   var showingwin=false;
+   var winningscore= 4;
+   const Paddle_height=100;
+   const paddle_thickness=10;
+function calculatemouse(evt){
+        var rect = canvas.getBoundingClientRect();
+        var root = document.documentElement;
+        var mouseX = evt.clientX - rect.left - root.scrollLeft;
+        var mouseY = evt.clientY - rect.top - root.scrollTop;
+return { x:mouseX,
+        y:mouseY
+};
+}
+function handlemouseclick(evt){
+   if(showingwin){ player1score=0;
+                   player2score=0;
+                   showingwin=false;
+}}
+
+   window.onload = function() {
+ console.log("javascript text is here");
+   canvas = document.getElementById('game canvas');
+   canvascontext = canvas.getContext('2d');
+   var fps=30;
+   setInterval(function(){move();
+                          draw();}, 1000/fps); 
+  // if(canvas.addEventListener('dblclick'))
+        canvas.addEventListener('mousedown',handlemouseclick);
+        canvas.addEventListener('mousemove',
+         function(evt){ var mousePos = calculatemouse(evt);
+                         paddle1y = (mousePos.y-Paddle_height/2);
+});
+}
+function move(){
+      if(showingwin)
+          {return;}
+      computer();
+      ballx = ballx + ballspeedx;
+      bally = bally + ballspeedy;
+
+      if(ballx >= canvas.width)
+        {if(bally>paddle2y && bally < paddle2y+Paddle_height)
+                { ballspeedx=-ballspeedx;
+   var deltay=bally-(paddle2y+ Paddle_height/2);
+                 ballspeedy=deltay*0.35;
+}
+          else { 
+               player1score++; 
+             if(player1score==2)	{ ballspeedx=18;ballspeedy=18;}		   
+               reset();     
+}
+}
+      if(ballx <0)
+           { if(bally>paddle1y && bally < paddle1y+Paddle_height)
+                { ballspeedx=-ballspeedx;
+ 
+                  var deltay=bally-(paddle1y+ Paddle_height/2);
+                 ballspeedy=deltay*0.35;
+}
+             else
+               { player2score++;  //must be before reset
+			    if(player2score==2)	{ ballspeedx=18;ballspeedy=18;}	
+               reset();
+               
+       }
+           }
+      if(bally >= canvas.height)
+           {ballspeedy=-ballspeedy;}
+      if(bally <0)
+           { ballspeedy=-ballspeedy;}
+}
+  function reset(){
+    if(player2score>=winningscore)
+        {//player1score=0;
+         //player2score=0;
+         showingwin=true;}
+	ballx= canvas.width/2;
+    bally= canvas.height/2;
+    ballspeedx=-ballspeedx;
+}
+function computer(){ 
+  var paddle2ycentre = paddle2y+(Paddle_height/2);
+ if(paddle2ycentre < bally-35){ paddle2y+=15;}
+ else if(paddle2ycentre >bally+35) 
+     {paddle2y-=15;}
+}
+function colorRect(leftX,topY,width,height,color)
+{   canvascontext.fillStyle = color;
+    canvascontext.fillRect(leftX,topY,width,height,color);  
+}   
+function colorCircle(centreX,centreY,radius,color){
+      canvascontext.fillStyle =color;
+      canvascontext.beginPath();
+      canvascontext.arc(centreX,centreY,radius,0,Math.PI*2,true);
+      canvascontext.fill();
+}
+function drawnet(){
+   for(var i=0;i<canvas.height;i+=40){
+         colorRect(canvas.width/2-1,i,2,20,'white');   
+}
+}
+function draw(){ 
+    //coloring screen black
+      colorRect(0,0,canvas.width,canvas.height,'black'); 
+      if(showingwin)
+          {   canvascontext.fillStyle ='white';
+            if(player1score>=winningscore){
+                   canvascontext.fillText("Orange Player Won !!",400,200);}
+            else if(player2score>=winningscore){
+       canvascontext.fillText("Blue Player Won !!",400,200);}
+          canvascontext.fillStyle ='white';
+          canvascontext.fillText("Click TO Continue !!",400,300);
+          return;
+		  }
+    // the ball dimensions
+      colorCircle(ballx,bally,10,'pink');
+         drawnet();
+    // left paddle dimensions 
+      colorRect(0,paddle1y,paddle_thickness,Paddle_height,'orange'); 
+    //right paddle dimensions
+      colorRect(canvas.width-paddle_thickness,paddle2y,paddle_thickness,Paddle_height,'blue'); 
+	  canvascontext.fillStyle='white';
+      canvascontext.fillText(player1score,100,100);
+      canvascontext.fillText(player2score,canvas.width-100,100);
+}
+
+</script>
+</html> 
